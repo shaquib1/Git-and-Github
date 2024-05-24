@@ -1,6 +1,6 @@
 ---
 title: Keeping your account and data secure
-intro: 'To protect your personal information, you should keep both your account on {% ifversion ghae %}{% data variables.product.product_name %}{% else %}{% data variables.location.product_location %}{% endif %} and any associated data secure.'
+intro: 'To protect your personal information, you should keep both your account on {% data variables.location.product_location %} and any associated data secure.'
 redirect_from:
   - /articles/keeping-your-account-and-data-secure
   - /github/authenticating-to-github/keeping-your-account-and-data-secure
@@ -15,8 +15,9 @@ topics:
 children:
   - /about-authentication-to-github
   - /creating-a-strong-password
+  - /switching-between-accounts
   - /updating-your-github-access-credentials
-  - /creating-a-personal-access-token
+  - /managing-your-personal-access-tokens
   - /reviewing-your-ssh-keys
   - /reviewing-your-deploy-keys
   - /token-expiration-and-revocation

@@ -1,28 +1,25 @@
-import useSWR from 'swr'
-import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { Heading } from '@primer/react'
 
-import { sendEvent, EventType } from 'src/events/components/events'
-import { useTranslation } from 'components/hooks/useTranslation'
-import { DEFAULT_VERSION, useVersion } from 'components/hooks/useVersion'
+import type { SearchT } from 'src/search/components/types'
+import { useTranslation } from 'src/languages/components/useTranslation'
+import { DEFAULT_VERSION, useVersion } from 'src/versions/components/useVersion'
 import { useNumberFormatter } from 'src/search/components/useNumberFormatter'
-import type { SearchResultsT } from 'src/search/components/types'
 import { SearchResults } from 'src/search/components/SearchResults'
-import { SearchError } from 'src/search/components/SearchError'
 import { NoQuery } from 'src/search/components/NoQuery'
-import { Loading } from 'src/search/components/Loading'
-import { useQuery } from 'src/search/components/useQuery'
-import { usePage } from 'src/search/components/usePage'
-import { useMainContext } from 'components/context/MainContext'
+import { useMainContext } from 'src/frame/components/context/MainContext'
+import { ValidationErrors } from './ValidationErrors'
 
-export function Search() {
-  const { locale } = useRouter()
+type Props = {
+  search: SearchT
+}
+
+export function Search({ search }: Props) {
   const { formatInteger } = useNumberFormatter()
-  const { t } = useTranslation('search')
+  const { t } = useTranslation('search_results')
   const { currentVersion } = useVersion()
-  const { query, debug } = useQuery()
-  const { page } = usePage()
+
+  const { query } = search.search
 
   // A reference to the `content/search/index.md` Page object.
   // Not to be confused with the "page" that is for paginating
@@ -30,46 +27,12 @@ export function Search() {
   const { allVersions, page: documentPage } = useMainContext()
   const searchVersion = allVersions[currentVersion].versionTitle
 
-  const sp = new URLSearchParams()
-  const hasQuery = Boolean(query.trim())
-  if (hasQuery) {
-    sp.set('query', query.trim())
-    sp.set('language', locale || 'en')
-    if (debug) sp.set('debug', 'true')
-    sp.set('version', currentVersion)
-    if (page !== 1) {
-      sp.set('page', `${page}`)
-    }
-  }
+  const { results, validationErrors } = search
+  const hasQuery = Boolean((query && query.trim()) || '')
 
-  const inDebugMode = process.env.NODE_ENV === 'development'
-
-  const { data: results, error } = useSWR<SearchResultsT | null, Error | null>(
-    hasQuery ? `/api/search/v1?${sp.toString()}` : null,
-    async (url) => {
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error(`${response.status} on ${url}`)
-      }
-      return await response.json()
-    },
-    {
-      onSuccess: () => {
-        sendEvent({
-          type: EventType.search,
-          search_query: query,
-        })
-      },
-      // Because the backend never changes between fetches, we can treat
-      // it as an immutable resource and disable these revalidation
-      // checks.
-      revalidateIfStale: inDebugMode,
-      revalidateOnFocus: inDebugMode,
-      revalidateOnReconnect: inDebugMode,
-    }
-  )
-
-  let pageTitle = documentPage.fullTitle
+  // Mostly to satisfy TypeScript because the useMainContext hook
+  // is run on every request and every request doesn't have a page.
+  let pageTitle = documentPage?.fullTitle || 'Search'
   if (hasQuery) {
     pageTitle = `${t('search_results_for')} "${query.trim()}"`
     if (currentVersion !== DEFAULT_VERSION) {
@@ -91,15 +54,18 @@ export function Search() {
         </Heading>
       )}
 
-      {error ? (
-        <SearchError error={error} />
-      ) : results ? (
-        <SearchResults results={results} query={query} />
-      ) : hasQuery ? (
-        <Loading />
-      ) : (
+      {/* Not having a query is actually a validation error.
+        But it's a bit harsh to call it an "error".
+        Simply going to "/en/search" shouldn't show an error message.
+        It should be a "no query" message, which is a bit more "gentle".
+         */}
+      {!hasQuery ? (
         <NoQuery />
-      )}
+      ) : validationErrors.length > 0 ? (
+        <ValidationErrors errors={validationErrors} />
+      ) : null}
+
+      {results ? <SearchResults results={results} search={search.search} /> : null}
     </div>
   )
 }

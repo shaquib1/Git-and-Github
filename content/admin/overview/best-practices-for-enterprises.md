@@ -5,7 +5,6 @@ intro: 'Learn {% data variables.product.company_short %}-recommended practices f
 versions:
   ghec: '*'
   ghes: '*'
-  ghae: '*'
 type: overview
 topics:
   - Accounts
@@ -15,9 +14,10 @@ topics:
 
 ## Assign multiple owners
 
-{% data reusables.organizations.ent-ownership-recommendation %} {% ifversion ghec or ghes %}For more information, see "[Inviting people to manage your enterprise](/admin/user-management/managing-users-in-your-enterprise/inviting-people-to-manage-your-enterprise)."{% endif %}
+{% data reusables.organizations.ent-ownership-recommendation %} {% ifversion ghec or ghes %}For more information, see "[AUTOTITLE](/admin/user-management/managing-users-in-your-enterprise/inviting-people-to-manage-your-enterprise)."{% endif %}
 
 {% ifversion ghec %}
+
 ## Identify the best authentication method for your enterprise
 
 {% data reusables.enterprise.ghec-authentication-options %}

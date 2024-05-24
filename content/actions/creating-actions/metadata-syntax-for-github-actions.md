@@ -10,12 +10,10 @@ redirect_from:
 versions:
   fpt: '*'
   ghes: '*'
-  ghae: '*'
   ghec: '*'
 type: reference
 ---
 
-{% data reusables.actions.enterprise-beta %}
 {% data reusables.actions.enterprise-github-hosted-runners %}
 
 ## About YAML syntax for {% data variables.product.prodname_actions %}
@@ -42,7 +40,15 @@ Action metadata files use YAML syntax. If you're new to YAML, you can read "[Lea
 
 ### Example: Specifying inputs
 
-This example configures two inputs: `num-octocats` and `octocat-eye-color`. The `num-octocats` input is not required and will default to a value of '1'; `octocat-eye-color` is required and has no default value. Workflow files that use this action must use the `with` keyword to set an input value for `octocat-eye-color`. For more information about the `with` syntax, see "[AUTOTITLE](/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepswith)."
+This example configures two inputs: `num-octocats` and `octocat-eye-color`. The `num-octocats` input is not required and will default to a value of `1`. `octocat-eye-color` is required and has no default value.
+
+{% note %}
+
+**Note:** workflows using `required: true` will not automatically return an error if the input is not specified for events that automatically trigger workflow runs. If you set `required: true` in your workflow file and are using `workflow_dispatch` to manually run the workflow, you will be required to specify inputs on {% data variables.product.prodname_dotcom_the_website %}. For more information, see "[AUTOTITLE](/actions/using-workflows/events-that-trigger-workflows)."
+
+{% endnote %}
+
+Workflow files that use this action can use the `with` keyword to set an input value for `octocat-eye-color`. For more information about the `with` syntax, see "[AUTOTITLE](/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepswith)."
 
 ```yaml
 inputs:
@@ -116,6 +122,7 @@ outputs:
 ### Example: Declaring outputs for composite actions
 
 {% raw %}
+
 ```yaml
 outputs:
   random-number:
@@ -132,6 +139,7 @@ runs:
 {%- endif %}{% raw %}
       shell: bash
 ```
+
 {% endraw %}
 
 ### `outputs.<output_id>.value`
@@ -148,11 +156,11 @@ For more information on how to use context syntax, see "[AUTOTITLE](/actions/lea
 
 **Required** Configures the path to the action's code and the runtime used to execute the code.
 
-### Example: Using Node.js v16
+### Example: Using Node.js v20
 
 ```yaml
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'main.js'
 ```
 
@@ -160,7 +168,7 @@ runs:
 
 **Required** The runtime used to execute the code specified in [`main`](#runsmain).
 
-- Use `node16` for Node.js v16.
+- Use `node20` for Node.js v20.
 
 ### `runs.main`
 
@@ -174,7 +182,7 @@ In this example, the `pre:` action runs a script called `setup.js`:
 
 ```yaml
 runs:
-  using: 'node16'
+  using: 'node20'
   pre: 'setup.js'
   main: 'index.js'
   post: 'cleanup.js'
@@ -201,7 +209,7 @@ In this example, the `post:` action runs a script called `cleanup.js`:
 
 ```yaml
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'index.js'
   post: 'cleanup.js'
 ```
@@ -236,6 +244,7 @@ For example, this `cleanup.js` will only run on Linux-based runners:
 **Optional** The command you want to run. This can be inline or a script in your action repository:
 
 {% raw %}
+
 ```yaml
 runs:
   using: "composite"
@@ -243,6 +252,7 @@ runs:
     - run: ${{ github.action_path }}/test/script.sh
       shell: bash
 ```
+
 {% endraw %}
 
 Alternatively, you can use `$GITHUB_ACTION_PATH`:
@@ -259,7 +269,7 @@ For more information, see "[AUTOTITLE](/actions/learn-github-actions/contexts#gi
 
 #### `runs.steps[*].shell`
 
-**Optional** The shell where you want to run the command. You can use any of the shells listed [here](/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsshell). Required if `run` is set.
+**Optional** The shell where you want to run the command. You can use any of the shells listed in "[AUTOTITLE](/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsshell)." Required if `run` is set.
 
 #### `runs.steps[*].if`
 
@@ -269,9 +279,9 @@ For more information, see "[AUTOTITLE](/actions/learn-github-actions/contexts#gi
 
 **Example: Using contexts**
 
- This step only runs when the event type is a `pull_request` and the event action is `unassigned`.
+This step only runs when the event type is a `pull_request` and the event action is `unassigned`.
 
- ```yaml
+```yaml
 steps:
   - run: echo This event is a pull request that had an assignee removed.
     if: {% raw %}${{ github.event_name == 'pull_request' && github.event.action == 'unassigned' }}{% endraw %}
@@ -355,7 +365,7 @@ runs:
         last_name: Octocat
 ```
 
-{% ifversion ghes > 3.5 or ghae > 3.5 %}
+{% ifversion ghes %}
 
 #### `runs.steps[*].continue-on-error`
 
@@ -448,6 +458,7 @@ For more information about using the `CMD` instruction with {% data variables.pr
 #### Example: Defining arguments for the Docker container
 
 {% raw %}
+
 ```yaml
 runs:
   using: 'docker'
@@ -457,6 +468,7 @@ runs:
     - 'foo'
     - 'bar'
 ```
+
 {% endraw %}
 
 ## `branding`

@@ -1,5 +1,13 @@
-1. Select the **Select personal account, enterprise account or organization** dropdown menu and click the name of the account your support ticket is regarding.
+{% ifversion fpt %}
+1. At the top of the page, under "How can we help?", choose a topic or click **open a support ticket**.
+   {% note %}
+
+   **Note:** You will only see the link to open a support ticket if your account uses a paid {% data variables.product.prodname_dotcom %} product or you are a member of an organization that uses a paid product. If you don't see the link, you can speak to {% data variables.product.prodname_dotcom %} users and staff on the {% data variables.contact.community_support_forum %} for most issues, and you can still contact {% data variables.contact.github_support %} to report account, security, and abuse issues.
+
+   {% endnote %}
+{%- endif %}
 {% ifversion ghec or ghes %}
+1. Select the **Select personal account, enterprise account or organization** dropdown menu and click the name of the account your support ticket is regarding.
    {% note %}
 
    **Notes:**
@@ -37,7 +45,7 @@
    {% endnote %}
 {%- endif %}
 1. Under "Subject", type a descriptive title for the issue you're having.
-2. Under "How can we help", provide any additional information that will help the Support team troubleshoot the problem. You can use markdown to format your message.
+1. Under "How can we help", provide any additional information that will help the Support team troubleshoot the problem. You can use markdown to format your message.
 
    Helpful information may include:
     - Steps to reproduce the issue
@@ -48,7 +56,7 @@
 
       {% warning %}
 
-      **Warning:** When you upload an image or video to a pull request or issue comment, or upload a file to a ticket in the {% data variables.contact.support_portal %}, anyone can view the anonymized URL without authentication, even if the pull request or issue is in a private repository{% ifversion ghes %}, or if private mode is enabled{% endif %}. To keep sensitive media files private, serve them from a private network or server that requires authentication. {% ifversion fpt or ghec %}For more information on anonymized URLs see "[AUTOTITLE](/authentication/keeping-your-account-and-data-secure/about-anonymized-urls)."{% endif %}
+      **Warning:** When you upload an image or video to a pull request or issue comment, or upload a file to a ticket in the {% data variables.contact.landing_page_portal %}, anyone can view the anonymized URL without authentication, even if the pull request or issue is in a private repository{% ifversion ghes %}, or if private mode is enabled{% endif %}. To keep sensitive media files private, serve them from a private network or server that requires authentication. {% ifversion fpt or ghec %}For more information on anonymized URLs see "[AUTOTITLE](/authentication/keeping-your-account-and-data-secure/about-anonymized-urls)."{% endif %}
 
       {% endwarning %}
 

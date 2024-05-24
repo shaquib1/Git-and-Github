@@ -18,8 +18,7 @@ type: tutorial
 topics:
   - Workflows
 ---
-
-{% data reusables.actions.enterprise-beta %}
+ 
 {% data reusables.actions.enterprise-github-hosted-runners %}
 
 ## About workflow artifacts
@@ -51,8 +50,8 @@ Artifacts are uploaded during a workflow run, and you can view an artifact's nam
 
 To share data between jobs:
 
-* **Uploading files**: Give the uploaded file a name and upload the data before the job ends.
-* **Downloading files**: You can only download artifacts that were uploaded during the same workflow run. When you download a file, you can reference it by name.
+- **Uploading files**: Give the uploaded file a name and upload the data before the job ends.
+- **Downloading files**: You can only download artifacts that were uploaded during the same workflow run. When you download a file, you can reference it by name.
 
 The steps of a job share the same environment on the runner machine, but run in their own individual processes. To pass data between steps in a job, you can use inputs and outputs. For more information about inputs and outputs, see "[AUTOTITLE](/actions/creating-actions/metadata-syntax-for-github-actions)."
 
@@ -76,7 +75,7 @@ You can use the `upload-artifact` action to upload artifacts. When uploading an 
 
 For example, your repository or a web application might contain SASS and TypeScript files that you must convert to CSS and JavaScript. Assuming your build configuration outputs the compiled files in the `dist` directory, you would deploy the files in the `dist` directory to your web application server if all tests completed successfully.
 
-```
+```text
 |-- hello-world (repository)
 |   └── dist
 |   └── tests
@@ -92,7 +91,7 @@ This example shows you how to create a workflow for a Node.js project that build
 
 The workflow uploads the production artifacts in the `dist` directory, but excludes any markdown files. It also uploads the `code-coverage.html` report as another artifact.
 
-```yaml{:copy}
+```yaml copy
 name: Node CI
 
 on: [push]
@@ -126,7 +125,7 @@ jobs:
 
 You can define a custom retention period for individual artifacts created by a workflow. When using a workflow to create a new artifact, you can use `retention-days` with the `upload-artifact` action. This example demonstrates how to set a custom retention period of 5 days for the artifact named `my-artifact`:
 
-```yaml{:copy}
+```yaml copy
   - name: 'Upload Artifact'
     uses: {% data reusables.actions.action-upload-artifact %}
     with:
@@ -181,20 +180,20 @@ Jobs that are dependent on a previous job's artifacts must wait for the dependen
 
 Job 1 performs these steps:
 - Performs a math calculation and saves the result to a text file called `math-homework.txt`.
-- Uses the `upload-artifact` action to upload the `math-homework.txt` file with the artifact name `homework`.
+- Uses the `upload-artifact` action to upload the `math-homework.txt` file with the artifact name `homework_pre`.
 
 Job 2 uses the result in the previous job:
-- Downloads the `homework` artifact uploaded in the previous job. By default, the `download-artifact` action downloads artifacts to the workspace directory that the step is executing in. You can use the `path` input parameter to specify a different download directory.
+- Downloads the `homework_pre` artifact uploaded in the previous job. By default, the `download-artifact` action downloads artifacts to the workspace directory that the step is executing in. You can use the `path` input parameter to specify a different download directory.
 - Reads the value in the `math-homework.txt` file, performs a math calculation, and saves the result to `math-homework.txt` again, overwriting its contents.
-- Uploads the `math-homework.txt` file. This upload overwrites the previously uploaded artifact because they share the same name.
+- Uploads the `math-homework.txt` file. As artifacts are considered immutable in `v4`, the artifact is passed a different input, `homework_final`, as a name.
 
 Job 3 displays the result uploaded in the previous job:
-- Downloads the `homework` artifact.
+- Downloads the `homework_final` artifact from Job 2.
 - Prints the result of the math equation to the log.
 
 The full math operation performed in this workflow example is `(3 + 7) x 9 = 90`.
 
-```yaml{:copy}
+```yaml copy
 name: Share data between jobs
 
 on: [push]
@@ -210,7 +209,7 @@ jobs:
       - name: Upload math result for job 1
         uses: {% data reusables.actions.action-upload-artifact %}
         with:
-          name: homework
+          name: homework_pre
           path: math-homework.txt
 
   job_2:
@@ -221,7 +220,7 @@ jobs:
       - name: Download math result for job 1
         uses: {% data reusables.actions.action-download-artifact %}
         with:
-          name: homework
+          name: homework_pre
       - shell: bash
         run: |
           value=`cat math-homework.txt`
@@ -229,7 +228,7 @@ jobs:
       - name: Upload math result for job 2
         uses: {% data reusables.actions.action-upload-artifact %}
         with:
-          name: homework
+          name: homework_final
           path: math-homework.txt
 
   job_3:
@@ -240,7 +239,7 @@ jobs:
       - name: Download math result for job 2
         uses: {% data reusables.actions.action-download-artifact %}
         with:
-          name: homework
+          name: homework_final
       - name: Print the final result
         shell: bash
         run: |

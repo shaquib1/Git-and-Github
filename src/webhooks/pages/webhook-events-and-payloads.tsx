@@ -2,15 +2,20 @@ import { GetServerSideProps } from 'next'
 import { useRouter } from 'next/router'
 import { useEffect } from 'react'
 
-import { getMainContext, MainContext, MainContextT } from 'components/context/MainContext'
+import {
+  addUINamespaces,
+  getMainContext,
+  MainContext,
+  MainContextT,
+} from 'src/frame/components/context/MainContext'
 import {
   getAutomatedPageContextFromRequest,
   AutomatedPageContext,
   AutomatedPageContextT,
-} from 'components/context/AutomatedPageContext'
+} from 'src/automated-pipelines/components/AutomatedPageContext'
 import { WebhookAction } from 'src/webhooks/components/types'
 import { Webhook } from 'src/webhooks/components/Webhook'
-import { AutomatedPage } from 'components/article/AutomatedPage'
+import { AutomatedPage } from 'src/automated-pipelines/components/AutomatedPage'
 
 type Props = {
   mainContext: MainContextT
@@ -39,30 +44,17 @@ export default function WebhooksEventsAndPayloads({
   // we don't want the URL to be ?actionType=closed#fork).
   useEffect(() => {
     const hashChangeHandler = () => {
-      const { asPath } = router
-      let [pathRoot, pathQuery = ''] = asPath.split('?')
-
-      if (pathRoot.includes('#')) {
-        pathRoot = pathRoot.split('#')[0]
-      }
+      const { pathname, hash, search } = window.location
 
       // carry over any other query parameters besides `actionType` for the webhook
       // action type
-      if (pathQuery.includes('#')) {
-        pathQuery = pathQuery.split('#')[0]
-      }
-      const params = new URLSearchParams(pathQuery)
+      const params = new URLSearchParams(search)
       params.delete('actionType')
 
-      if (location.hash) {
-        router.replace(
-          { pathname: pathRoot, query: params.toString(), hash: location.hash },
-          undefined,
-          {
-            shallow: true,
-            locale,
-          }
-        )
+      if (hash) {
+        router.replace({ pathname, query: params.toString(), hash }, undefined, {
+          shallow: true,
+        })
       }
     }
 
@@ -84,12 +76,13 @@ export default function WebhooksEventsAndPayloads({
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const { getInitialPageWebhooks } = await import('src/webhooks/lib')
-  const { getAutomatedPageMiniTocItems } = await import('lib/get-mini-toc-items')
+  const { getAutomatedPageMiniTocItems } = await import('src/frame/lib/get-mini-toc-items')
 
   const req = context.req as object
   const res = context.res as object
   const currentVersion = context.query.versionId as string
   const mainContext = await getMainContext(req, res)
+  addUINamespaces(req, mainContext.data.ui, ['parameter_table', 'webhooks'])
   const { miniTocItems } = getAutomatedPageContextFromRequest(req)
 
   // Get data for initial webhooks page (i.e. only 1 action type per webhook and
@@ -101,7 +94,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
   // content file
   const webhooksMiniTocs = await getAutomatedPageMiniTocItems(
     webhooks.map((webhook) => webhook.data.category),
-    context
+    context,
   )
   webhooksMiniTocs && miniTocItems.push(...webhooksMiniTocs)
 
